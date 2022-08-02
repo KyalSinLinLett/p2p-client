@@ -1,31 +1,32 @@
 const UID = String(Math.floor(Math.random() * 10000));
 const ref = String(Math.floor(Math.random() * 1000));
 
+let queryString = window.location.search;
+let urlParams = new URLSearchParams(queryString);
+let room_id = urlParams.get("room_id");
+
+if (!room_id) {
+  window.location = "lobby.html";
+}
+
 let localStream;
 let remoteStream;
 let peerConnection;
-let peers = [];
 
 let socket = new WebSocket("ws://localhost:4000/socket/websocket");
 let joinStatus = false;
 
-const removeVideoElement = (id) => {
-  let videoEl = document.getElementById(`dyn-user-${id}`);
-  if (videoEl) {
-    const tracks = videoEl.srcObject.getTracks();
+const removeVideoElement = () => {
+  let videoEl = document.getElementById("user-2");
 
-    tracks.forEach(function (track) {
-      track.stop();
-    });
+  const tracks = videoEl.srcObject.getTracks();
 
-    videoEl.srcObject = null;
-    videoEl.parentNode.removeChild(videoEl);
-  }
-};
+  tracks.forEach(function (track) {
+    track.stop();
+  });
 
-const updatePeerList = (id) => {
-  peers = peers.filter((p) => p !== id);
-  console.log("removed", id, "now: ", peers);
+  videoEl.srcObject = null;
+  videoEl.parentNode.removeChild(videoEl);
 };
 
 /**
@@ -33,17 +34,19 @@ const updatePeerList = (id) => {
  * join room:<room_id>
  */
 socket.onopen = () => {
-  socketSend("room:123", "phx_join", { uid: UID });
+  socketSend(`room:${room_id}`, "phx_join", { uid: UID });
 };
 
 socket.onmessage = async (event) => {
   const data = JSON.parse(event.data);
 
   if (data.event === "joined-room") {
-    peers = data.payload.current_peers;
-    console.log(peers);
     if (!joinStatus) {
-      console.log(data.payload.self, "successfully joined room");
+      if (!localStream) {
+        localStream = await navigator.mediaDevices.getUserMedia(constraints);
+        document.getElementById("user-1").srcObject = localStream;
+      }
+
       joinStatus = true;
       await createOffer();
     }
@@ -52,14 +55,12 @@ socket.onmessage = async (event) => {
   if (data.event === "offer") {
     const { offer: offer, sent_by: sent_by } = data.payload;
     if (sent_by !== UID) {
-      console.log("received offer from", sent_by);
       await createAnswer(offer, sent_by);
     }
   }
 
   if (data.event == "answer") {
     const { answer: answer, sent_by: sent_by, sent_to: sent_to } = data.payload;
-    console.log("received answer from", sent_by, "for offer by", sent_to);
     await addAnswer(answer, sent_by, sent_to);
   }
 
@@ -69,14 +70,16 @@ socket.onmessage = async (event) => {
       await setIceCandidate(peerConnection, candidate);
     } catch (error) {
       if (!peerConnection.iceConnectionState === "connected")
-        console.log("waiting for offer to answer...");
+        console.debug("waiting for offer to answer...");
     }
   }
 
-  if (data.event == "disconnected") {
+  if (data.event == "disconnected" || data.event == "user-left") {
     const { room_id: room_id, uid: user_that_left } = data.payload;
-    removeVideoElement(user_that_left);
-    updatePeerList(user_that_left);
+    console.log("disconnected", user_that_left);
+    document.getElementById("user-1").classList.remove("smallFrame");
+    removeVideoElement();
+    peerConnection.close();
   }
 };
 
@@ -119,8 +122,7 @@ const setIceCandidate = async (peerConnection, candidate) => {
 };
 
 const createAnswer = async (offer, sent_by) => {
-  console.log("creating answer for", sent_by);
-  await init("ans");
+  await init();
 
   try {
     await peerConnection.setRemoteDescription(offer);
@@ -128,25 +130,24 @@ const createAnswer = async (offer, sent_by) => {
     await peerConnection.setLocalDescription(answer);
 
     // signal offer to peer
-    console.log("sending answer...");
-    socketSend("room:123", "answer", {
+    socketSend(`room:${room_id}`, "answer", {
       answer: answer,
       sent_by: UID,
       sent_to: sent_by,
     });
   } catch (error) {
-    console.log(error.message, "in createOffer");
+    console.debug(error.message, "in createOffer");
   }
 };
 
-const addPeerStream = (event, peer_socket_id) => {
-  let psv = document.getElementById(`dyn-user-${peer_socket_id}`);
+const addPeerStream = (event) => {
+  document.getElementById("user-1").classList.add("smallFrame");
+  let psv = document.getElementById("user-2");
   if (!psv) {
-    console.log("adding peer stream");
     let peerStreamVid = document.createElement("video");
     let videos = document.getElementById("videos");
-    peerStreamVid.id = `dyn-user-${peer_socket_id}`;
-    peerStreamVid.className = "streams";
+    peerStreamVid.id = "user-2";
+    peerStreamVid.className = "video-player";
     peerStreamVid.autoplay = true;
     peerStreamVid.playsInline = true;
     videos.appendChild(peerStreamVid);
@@ -165,8 +166,6 @@ const addPeerStream = (event, peer_socket_id) => {
 const addAnswer = async (answer, sent_by, sent_to) => {
   if (sent_by === UID) return;
 
-  console.log("adding answer");
-
   if (!peerConnection.currentRemoteDescription) {
     await peerConnection.setRemoteDescription(answer);
   }
@@ -181,10 +180,8 @@ const createOffer = async () => {
     try {
       let offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
-      console.log("setting local desc done");
 
-      console.log("sending offer...");
-      socketSend("room:123", "offer", {
+      socketSend(`room:${room_id}`, "offer", {
         offer: offer,
         sent_by: UID,
       });
@@ -197,33 +194,57 @@ const createOffer = async () => {
 const init = async (type) => {
   peerConnection = new RTCPeerConnection(servers);
 
-  if (!localStream) {
-    localStream = await navigator.mediaDevices.getUserMedia(constraints);
-    document.getElementById("user-1").srcObject = localStream;
-  }
-
   localStream.getTracks().forEach((track) => {
     peerConnection.addTrack(track, localStream);
   });
 
   peerConnection.onicecandidateerror = (event) => {
     if (event.errorCode === 701) {
-      console.log(event.errorText);
+      console.debug(event.errorText);
     }
   };
 
   peerConnection.ontrack = (event) => {
-    for (let p of peers) {
-      addPeerStream(event, p);
-    }
+    addPeerStream(event);
   };
 
   // triggered after peerConnection obj created
   peerConnection.onicecandidate = (event) => {
     if (event.candidate) {
-      socketSend("room:123", "candidate", {
+      socketSend(`room:${room_id}`, "candidate", {
         candidate: event.candidate,
       });
     }
   };
+};
+
+const toggleMute = () => {
+  for (let index in localStream.getAudioTracks()) {
+    localStream.getAudioTracks()[index].enabled =
+      !localStream.getAudioTracks()[index].enabled;
+    muteButton.innerText = localStream.getAudioTracks()[index].enabled
+      ? "Unmuted"
+      : "Muted";
+  }
+};
+/**
+ * Enable/disable video
+ */
+const toggleVid = () => {
+  for (let index in localStream.getVideoTracks()) {
+    localStream.getVideoTracks()[index].enabled =
+      !localStream.getVideoTracks()[index].enabled;
+    vidButton.innerText = localStream.getVideoTracks()[index].enabled
+      ? "Cam"
+      : "Off";
+  }
+};
+
+const leave = () => {
+  socketSend(`room:${room_id}`, "user-left", {});
+  window.location = "lobby.html";
+};
+
+const reconnect = () => {
+  window.location.reload();
 };

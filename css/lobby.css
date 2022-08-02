@@ -1,0 +1,28 @@
+* {
+  text-align: center;
+  background-color: rgb(255, 255, 255);
+}
+
+#join-room-container {
+  margin-top: 20%;
+  font-size: larger;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+input[type="text"] {
+  height:40px;
+  font-size:14pt;
+  border-radius: 0.5rem;
+}
+
+input[type="submit"] {
+  height:45px;
+  font-size:15pt;
+  border: none;
+  background-color: rgb(34, 138, 115);
+  color: white;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  font-family: 'Courier New', Courier, monospace;
+}
+

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>PeerChat</title>
+    <title>WebRTC raw</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link
       rel="stylesheet"
@@ -13,11 +13,20 @@
     />
   </head>
   <body>
-    <div>
-      <p>Peers: <strong id="peerlist"></strong></p>
-    </div>
     <div id="videos">
-      <video class="streams" id="user-1" autoplay playsinline muted></video>
+      <video
+        class="video-player"
+        id="user-1"
+        autoplay
+        playsinline
+        muted
+      ></video>
+    </div>
+    <div id="controls">
+      <button id="muteButton" onclick="toggleMute()">Unmuted</button>
+      <button id="vidButton" onclick="toggleVid()">Cam</button>
+      <button id="leaveButton" onclick="leave()">Leave</button>
+      <button id="reconnectButton" onclick="reconnect()">Reconnect</button>
     </div>
   </body>
   <script src="/js/main.js"></script>

@@ -13,13 +13,9 @@
 
 .video-player {
   background-color: black;
-  width: 30%;
-  height: 30%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-}
-
-.streams {
-  width: 40%;
 }
 
 .smallFrame {
@@ -29,7 +25,7 @@
   height: 170px;
   width: 300px;
   border-radius: 5px;
-  border: 2px solid #b366f9;
+  border: 2px solid #6cd3b3;
   -webkit-box-shadow: 3px 3px 15px -1px rgba(0, 0, 0, 0.77);
   box-shadow: 3px 3px 15px -1px rgba(0, 0, 0, 0.77);
   z-index: 999;
@@ -59,8 +55,17 @@
   width: 30px;
 }
 
-#leave-btn {
-  background-color: rgb(255, 80, 80, 1);
+button {
+  height: 40px;
+  font-size: 13pt;
+  border: none;
+  padding: 10px;
+  word-wrap: break-word;
+  background-color: rgb(34, 138, 115);
+  color: white;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  font-family: "Courier New", Courier, monospace;
 }
 
 @media screen and (max-width: 600px) {
