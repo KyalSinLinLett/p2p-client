@@ -6,7 +6,7 @@ let urlParams = new URLSearchParams(queryString);
 let room_id = urlParams.get("room_id");
 
 if (!room_id) {
-  window.location = "lobby.html";
+  window.location = "index.html";
 }
 
 let localStream;

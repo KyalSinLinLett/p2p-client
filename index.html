@@ -9,25 +9,37 @@
       rel="stylesheet"
       type="text/css"
       media="screen"
-      href="/css/main.css"
+      href="./css/lobby.css"
     />
   </head>
   <body>
-    <div id="videos">
-      <video
-        class="video-player"
-        id="user-1"
-        autoplay
-        playsinline
-        muted
-      ></video>
-    </div>
-    <div id="controls">
-      <button id="muteButton" onclick="toggleMute()">Unmuted</button>
-      <button id="vidButton" onclick="toggleVid()">Cam</button>
-      <button id="leaveButton" onclick="leave()">Leave</button>
-      <button id="reconnectButton" onclick="reconnect()">Reconnect</button>
-    </div>
+    <main>
+      <div id="join-room-container">
+        <div id="join-room-title">
+          <p>Create or join a room.</p>
+        </div>
+
+        <div>
+          <form id="join-form">
+            <input
+              type="text"
+              name="invite_link"
+              required
+            />
+            <input type="submit" value="Join Room" />
+          </form>
+        </div>
+      </div>
+    </main>
   </body>
-  <script src="/js/main.js"></script>
+
+  <script>
+    let form = document.getElementById("join-form");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      let inviteCode = e.target.invite_link.value;
+      window.location = `room.html?room_id=${inviteCode}`;
+    });
+  </script>
 </html>
