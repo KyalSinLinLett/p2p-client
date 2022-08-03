@@ -13,20 +13,21 @@ let localStream;
 let remoteStream;
 let peerConnection;
 
-let socket = new WebSocket("ws://localhost:4000/socket/websocket");
+let socket = new WebSocket("wss://intense-retreat-59477.herokuapp.com/socket/websocket");
 let joinStatus = false;
 
 const removeVideoElement = () => {
   let videoEl = document.getElementById("user-2");
+  if (videoEl) {
+    const tracks = videoEl.srcObject.getTracks();
 
-  const tracks = videoEl.srcObject.getTracks();
+    tracks.forEach(function (track) {
+      track.stop();
+    });
 
-  tracks.forEach(function (track) {
-    track.stop();
-  });
-
-  videoEl.srcObject = null;
-  videoEl.parentNode.removeChild(videoEl);
+    videoEl.srcObject = null;
+    videoEl.parentNode.removeChild(videoEl);
+  }
 };
 
 /**
@@ -227,9 +228,7 @@ const toggleMute = () => {
       : "Muted";
   }
 };
-/**
- * Enable/disable video
- */
+
 const toggleVid = () => {
   for (let index in localStream.getVideoTracks()) {
     localStream.getVideoTracks()[index].enabled =
