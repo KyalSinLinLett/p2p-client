@@ -241,7 +241,7 @@ const toggleVid = () => {
 
 const leave = () => {
   socketSend(`room:${room_id}`, "user-left", {});
-  window.location = "lobby.html";
+  window.location = "index.html";
 };
 
 const reconnect = () => {
