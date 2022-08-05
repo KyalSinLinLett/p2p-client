@@ -12,3 +12,5 @@
 
 ### Architecture:
 <img src="./img/architecture.jpg" width="480px">
+
+Test it out here: https://kyalsinlinlett.github.io/p2p-client/
