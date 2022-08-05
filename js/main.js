@@ -13,7 +13,9 @@ let localStream;
 let remoteStream;
 let peerConnection;
 
-let socket = new WebSocket("wss://intense-retreat-59477.herokuapp.com/socket/websocket");
+let socket = new WebSocket(
+  "wss://intense-retreat-59477.herokuapp.com/socket/websocket"
+);
 let joinStatus = false;
 
 const removeVideoElement = () => {
