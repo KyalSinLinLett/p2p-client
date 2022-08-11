@@ -6,7 +6,7 @@
 
 ### Usage:
 - Enter a room id (alphanumeric)
-- Click "Create Room"
+- Click "Join Room"
 - If you are starting the room, send the room id to your peer.
 - If you are joining the room, simply enter the room id given to you.
 
