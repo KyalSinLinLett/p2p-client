@@ -1,5 +1,5 @@
 const UID = String(Math.floor(Math.random() * 10000));
-const ref = String(Math.floor(Math.random() * 1000));
+const ref = String(Math.floor(Math.random() * 10000));
 
 let queryString = window.location.search;
 let urlParams = new URLSearchParams(queryString);
