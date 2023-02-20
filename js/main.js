@@ -14,7 +14,7 @@ let remoteStream;
 let peerConnection;
 
 let socket = new WebSocket(
-  "wss://intense-retreat-59477.herokuapp.com/socket/websocket"
+    "wss://fathomless-dusk-11609.herokuapp.com/socket/websocket"
 );
 let joinStatus = false;
 
