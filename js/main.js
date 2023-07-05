@@ -104,13 +104,9 @@ const socketSend = (topic, event, payload) => {
 const servers = {
     iceServers: [
         {
-            urls: [
-                {
-                    urls: "turn:13.212.1.202:3478", // A TURN server
-                    username: "dev_test_user",
-                    credential: "dev_test_user_123",
-                },
-            ],
+            urls: "turn:13.212.1.202:3478", // A TURN server
+            username: "dev_test_user",
+            credential: "dev_test_user_123",
         },
     ],
 };
