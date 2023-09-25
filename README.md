@@ -1,4 +1,4 @@
-# Client
+# Client 
 
 - WebRTC peer client written in pure JavaScript without use of any third-party libraries.
 - Uses only the WebRTC api and WebSocket api already provided by the Web API
